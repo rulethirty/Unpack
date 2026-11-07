@@ -14,5 +14,6 @@ jobs:
       - run: cargo test --workspace --locked
       - run: cargo build -p unpack-desktop --locked
       - run: dbus-run-session -- xvfb-run -a sh scripts/smoke.sh
+      - run: dbus-run-session -- xvfb-run -a sh scripts/smoke-install.sh
       - run: desktop-file-validate data/io.github.unpack.Unpack.desktop
       - run: appstreamcli validate --no-net --override=url-homepage-missing=info data/io.github.unpack.Unpack.metainfo.xml

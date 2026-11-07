@@ -1,9 +1,11 @@
 mod archive_view;
 mod icon_decode;
 mod identity_editor;
+mod install_smoke;
 mod installation_view;
 mod manager;
 mod settings;
+mod styles;
 
 use adw::prelude::*;
 use gtk::{gio, glib};
@@ -108,6 +110,7 @@ pub(super) fn host_launch_context() -> gio::AppLaunchContext {
 
 impl Window {
     pub fn new(app: &adw::Application) -> Rc<Self> {
+        styles::install();
         let (paths, initial_error) = match Paths::discover() {
             Ok(paths) => (paths, None),
             Err(error) => {
@@ -353,7 +356,8 @@ impl Window {
 
     fn connect_actions(self: &Rc<Self>) {
         for name in [
-            "open", "create", "install", "extract", "search", "cancel", "settings", "help", "about",
+            "open", "create", "install", "primary", "extract", "search", "cancel", "settings",
+            "help", "about",
         ] {
             let action = gio::SimpleAction::new(name, None);
             let weak = Rc::downgrade(self);
@@ -363,6 +367,7 @@ impl Window {
                         "open" => ui.open_dialog(),
                         "create" => ui.create_dialog(),
                         "install" => ui.review_install(),
+                        "primary" => ui.primary_action(),
                         "extract" => ui.extract_dialog(),
                         "search" => {
                             ui.stack.set_visible_child_name("archive");
@@ -521,8 +526,24 @@ impl Window {
                 }
             });
             let weak = Rc::downgrade(self);
-            glib::timeout_add_local_once(Duration::from_secs(2), move || {
+            if let Some(parent) = std::env::var_os("UNPACK_INSTALL_SMOKE_PARENT") {
+                let weak = Rc::downgrade(self);
+                glib::timeout_add_local_once(Duration::from_millis(1600), move || {
+                    if let Some(ui) = weak.upgrade() {
+                        ui.smoke_install_fixture(parent.into());
+                    }
+                });
+            }
+            let delay = if std::env::var_os("UNPACK_INSTALL_SMOKE_PARENT").is_some() {
+                5
+            } else {
+                2
+            };
+            glib::timeout_add_local_once(Duration::from_secs(delay), move || {
                 if let Some(ui) = weak.upgrade() {
+                    if std::env::var_os("UNPACK_INSTALL_SMOKE_PARENT").is_some() {
+                        ui.assert_installed_smoke();
+                    }
                     apply_theme(Theme::Light);
                     let bounds = ui
                         .archive
@@ -577,9 +598,7 @@ impl Window {
         self.state.borrow_mut().busy = false;
         self.progress.set_visible(false);
         self.cancel_button.set_visible(false);
-        self.archive
-            .review
-            .set_sensitive(self.state.borrow().inspection.is_some());
+        self.sync_install_action();
         self.update_queue_ui();
     }
     fn event(self: &Rc<Self>, event: Event) {
@@ -617,6 +636,7 @@ impl Window {
                     });
                 self.update_queue_ui();
                 self.refresh_archive_icon();
+                self.sync_install_action();
                 self.status
                     .set_text("Inspection complete · no archive code was executed");
                 let queued = self.state.borrow().queue.len();
@@ -625,15 +645,21 @@ impl Window {
                 }
             }
             Event::Installed(manifest) => {
+                {
+                    let mut state = self.state.borrow_mut();
+                    state.applications.retain(|app| app.id != manifest.id);
+                    state.applications.push(manifest.clone());
+                }
                 self.finish();
                 self.status
                     .set_text(&format!("Installed {}", manifest.name));
                 self.notify(&format!(
-                    "{} is installed. Launch it from Installed Applications.",
+                    "{} is installed. Click Open to launch it.",
                     manifest.name
                 ));
                 self.refresh_registry();
-                self.next_queued();
+                // Leave the finished app visible so its primary action is Open.
+                // Other archives stay available through the explicit queue button.
             }
             Event::MetadataUpdated(manifest) => {
                 self.finish();
@@ -644,6 +670,7 @@ impl Window {
                 self.state.borrow_mut().applications = apps.clone();
                 self.show_applications(&apps);
                 self.show_history(&history);
+                self.sync_install_action();
             }
             Event::Recovered(messages) => {
                 if !messages.is_empty() {

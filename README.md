@@ -85,6 +85,8 @@ Native file dialogs, keyboard shortcuts, system/light/dark themes, responsive na
 3. **Click Install…** at the top, review the summary, and confirm.
 4. **Find your app** in the application menu and Unpack’s **Installed Applications** section.
 
+After installation, **Install…** becomes **Open** so you can launch the app immediately. The selected archive icon is installed with its launcher and referenced directly, so your system’s application menu does not have to wait for an icon-theme cache refresh. Keep **Show in the application menu** and **Use this icon for the installed application** enabled to create both. If an older installation has a generic icon, use **Manage Application → Name & Icon from Archive…** to refresh it.
+
 Prefer to browse? Switch to **Files** to inspect or extract the archive. Advanced details stay available without getting in your way. **Next Archive** appears only when another archive is actually queued.
 
 ## Safety and transparency

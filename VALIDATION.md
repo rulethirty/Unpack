@@ -25,6 +25,7 @@ Development validation performed on 2026-11-07, from the Fedora 44 host using a 
 - Journal test simulates an interrupted publish move and restores the original without overwriting.
 - Revised UI smoke checks the archive-derived friendly name and PNG preview, hidden queue navigation for a single archive, contextual queue visibility, collapsed options, Install/Files navigation, and the top Install action remaining onscreen at 640px with all details expanded.
 - The same revised smoke fixture is used for AppImage and installed Flatpak package tests. PNG previews do not depend on launching a glycin image helper; libpng runs on a bounded worker input. XPM preview remains dependent on runtime loader availability.
+- `scripts/smoke-install.sh` installs only its generated fixture into temporary user-level directories, verifies that the primary action becomes Open, keeps queued archives from hiding the finished app, retains Update, handles registry removal/reload, and verifies via GIO that the system desktop launcher resolves its icon to the recorded installed file. It does not execute the installed application.
 
 ## Distribution packages
 

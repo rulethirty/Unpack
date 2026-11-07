@@ -56,6 +56,18 @@ pub(super) fn size(bytes: u64) -> String {
 }
 impl Window {
     pub(super) fn connect_archive(self: &Rc<Self>) {
+        let weak = Rc::downgrade(self);
+        self.archive.id.connect_changed(move |_| {
+            if let Some(ui) = weak.upgrade() {
+                ui.sync_install_action();
+            }
+        });
+        let weak = Rc::downgrade(self);
+        self.archive.update.connect_toggled(move |_| {
+            if let Some(ui) = weak.upgrade() {
+                ui.sync_install_action();
+            }
+        });
         let breakpoint = adw::Breakpoint::new(
             adw::BreakpointCondition::parse("max-width: 850sp").expect("valid static breakpoint"),
         );

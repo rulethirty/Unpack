@@ -304,11 +304,12 @@ pub fn plan(
             comment: "Portable application installed with Unpack".into(),
             executable: executable.to_string_lossy().into_owned(),
             arguments: options.arguments.clone(),
-            icon: if icon.is_some() {
-                format!("io.github.unpack.{}", options.id)
-            } else {
-                "application-x-executable".into()
-            },
+            // An absolute Icon path is allowed by the Desktop Entry spec and
+            // works immediately, even when hicolor's index/cache is absent.
+            icon: icon
+                .as_ref()
+                .map(|(_, path)| path.to_string_lossy().into_owned())
+                .unwrap_or_else(|| "application-x-executable".into()),
             terminal: options.terminal,
             categories: vec!["Utility".into()],
             startup_notify: true,
@@ -970,15 +971,12 @@ pub fn refresh_identity(
         .iter()
         .filter(|a| a.path.extension().is_some_and(|s| s == "desktop"))
     {
-        let icon = if updated
+        let icon = updated
             .artifacts
             .iter()
-            .any(|a| a.path.starts_with(&paths.icons))
-        {
-            format!("io.github.unpack.{}", current.id)
-        } else {
-            "application-x-executable".into()
-        };
+            .find(|a| a.path.starts_with(&paths.icons))
+            .map(|a| a.path.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "application-x-executable".into());
         let desktop = DesktopEntry {
             name: updated.name.clone(),
             generic_name: String::new(),
@@ -1283,6 +1281,19 @@ mod tests {
             .iter()
             .find(|a| a.path.extension().is_some_and(|s| s == "xpm"))
             .unwrap();
+        let launcher = manifest
+            .artifacts
+            .iter()
+            .find(|a| a.path.extension().is_some_and(|s| s == "desktop"))
+            .unwrap();
+        let desktop = std::fs::read_to_string(&launcher.path).unwrap();
+        assert!(icon.path.is_absolute());
+        assert!(
+            desktop
+                .lines()
+                .any(|line| line == format!("Icon={}", icon.path.display())),
+            "System launcher must point to the installed icon, not depend on icon-theme caches"
+        );
         assert!(std::fs::read_to_string(&icon.path)
             .unwrap()
             .contains("33d17a"));
@@ -1296,6 +1307,10 @@ mod tests {
             &cancel,
         )
         .unwrap();
+        let refreshed_launcher = std::fs::read_to_string(&launcher.path).unwrap();
+        assert!(refreshed_launcher
+            .lines()
+            .any(|line| line == format!("Icon={}", icon.path.display())));
         assert!(std::fs::read_to_string(&icon.path)
             .unwrap()
             .contains("3584e4"));

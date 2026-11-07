@@ -74,7 +74,7 @@ impl Window {
             self.apps_list.append(&row);
         }
     }
-    fn launch(&self, manifest: &Manifest) {
+    pub(super) fn launch(&self, manifest: &Manifest) {
         if unpack_core::config::sandboxed_package() {
             self.error("The Flatpak edition does not launch portable host applications. Use the native or AppImage edition.");
             return;
@@ -165,6 +165,8 @@ impl Window {
             .label("Manage Application")
             .child(&tools)
             .build();
+        super::styles::disclosure(&information_section, "dialog-information-symbolic");
+        super::styles::disclosure(&tools_section, "preferences-system-symbolic");
         for (name, action) in [
             ("Launch", "launch"),
             ("Open Installation Folder", "folder"),

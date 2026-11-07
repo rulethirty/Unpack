@@ -15,6 +15,9 @@
   <content_rating type="oars-1.1"/>
   <supports><control>pointing</control><control>keyboard</control></supports>
   <requires><display_length compare="ge">600</display_length></requires>
-  <releases><release version="0.1.0" date="2026-11-07" type="development"><description><p>Initial development release with archive inspection and managed application installation.</p></description></release></releases>
+  <releases>
+    <release version="0.1.1" date="2026-11-07" type="development"><description><p>Refined expandable menus and dropdown styling, Open after installation, and direct system launcher icon integration.</p></description></release>
+    <release version="0.1.0" date="2026-11-07" type="development"><description><p>Initial development release with archive inspection and managed application installation.</p></description></release>
+  </releases>
   <developer id="io.github.unpack"><name>Unpack contributors</name></developer>
 </component>

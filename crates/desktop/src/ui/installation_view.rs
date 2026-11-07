@@ -5,12 +5,20 @@ use super::*;
 
 fn section(title: &str, child: &impl IsA<gtk::Widget>) -> gtk::Expander {
     let expander = gtk::Expander::builder().label(title).child(child).build();
-    expander.add_css_class("card");
+    let icon = match title {
+        "Name & Icon" => "applications-graphics-symbolic",
+        "Install Location" => "folder-symbolic",
+        "Launch Settings" => "media-playback-start-symbolic",
+        "Advanced & Updates" => "preferences-system-symbolic",
+        _ => "dialog-information-symbolic",
+    };
+    super::styles::disclosure(&expander, icon);
     margins(&expander, 2);
     expander
 }
 
 fn compact_dropdown(dropdown: &gtk::DropDown) {
+    dropdown.add_css_class("archive-choice");
     let factory = gtk::SignalListItemFactory::new();
     factory.connect_setup(|_, item| {
         if let Some(item) = item.downcast_ref::<gtk::ListItem>() {
@@ -100,7 +108,7 @@ impl ArchiveView {
         review.add_css_class("suggested-action");
         review.add_css_class("pill");
         review.set_height_request(52);
-        review.set_action_name(Some("win.install"));
+        review.set_action_name(Some("win.primary"));
         review.set_sensitive(false);
         action_bar.append(&review);
         let install_hint = label(
@@ -278,6 +286,73 @@ impl ArchiveView {
 }
 
 impl Window {
+    pub(super) fn current_installed_app(&self) -> Option<Manifest> {
+        let state = self.state.borrow();
+        let inspection = state.inspection.as_ref()?;
+        let id = self.archive.id.text();
+        state
+            .applications
+            .iter()
+            .find(|app| app.id == id.as_str() && app.source_sha256 == inspection.sha256)
+            .cloned()
+    }
+
+    pub(super) fn sync_install_action(&self) {
+        let installed = self.current_installed_app();
+        let updating = self.archive.update.is_active();
+        self.archive
+            .review
+            .set_label(if installed.is_some() && !updating {
+                "Open"
+            } else if updating {
+                "Update…"
+            } else {
+                "Install…"
+            });
+        let state = self.state.borrow();
+        self.archive
+            .review
+            .set_sensitive(!state.busy && state.inspection.is_some());
+        if let Some(app) = installed.filter(|_| !updating) {
+            self.archive.summary.set_text(&format!(
+                "Installed for your account\n{}",
+                app.destination.display()
+            ));
+            self.archive.install_hint.set_text(
+                "Ready to use. Open the app here or find it in your system's application menu.",
+            );
+            self.archive.attention.set_visible(false);
+        } else {
+            self.archive
+                .install_hint
+                .set_text(if unpack_core::config::sandboxed_package() {
+                    "Flatpak cannot install host applications. Use the AppImage or native edition."
+                } else {
+                    "Review every change before installing. No administrator access needed."
+                });
+            if let (Some(inspection), Some(detection)) = (&state.inspection, &state.detection) {
+                self.archive.summary.set_text(&format!(
+                    "{} · {}\nFor your account. All application files stay together.",
+                    detection.kind.label(),
+                    super::archive_view::size(inspection.total_size)
+                ));
+            }
+        }
+    }
+
+    pub(super) fn primary_action(self: &Rc<Self>) {
+        if self.state.borrow().busy {
+            return;
+        }
+        if !self.archive.update.is_active() {
+            if let Some(app) = self.current_installed_app() {
+                self.launch(&app);
+                return;
+            }
+        }
+        self.review_install();
+    }
+
     pub(super) fn selected_archive_icon(&self) -> Option<PathBuf> {
         self.archive
             .icon_choice
