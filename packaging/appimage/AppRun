@@ -1,0 +1,19 @@
+#!/bin/sh
+# Runs unsandboxed, using bundled UI/codec libraries and the host's glibc.
+set -eu
+HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# Restore these for explicitly launched host programs; they must not inherit
+# Unpack's bundled GTK/GIO libraries or schema directories.
+export UNPACK_APPIMAGE=1
+export UNPACK_ORIGINAL_LD_LIBRARY_PATH="${LD_LIBRARY_PATH-}"
+export UNPACK_ORIGINAL_XDG_DATA_DIRS="${XDG_DATA_DIRS-/usr/local/share:/usr/share}"
+export UNPACK_ORIGINAL_GSETTINGS_SCHEMA_DIR="${GSETTINGS_SCHEMA_DIR-}"
+export UNPACK_ORIGINAL_GIO_MODULE_DIR="${GIO_MODULE_DIR-}"
+export UNPACK_ORIGINAL_GSK_RENDERER="${GSK_RENDERER-}"
+export LD_LIBRARY_PATH="$HERE/usr/lib"
+export XDG_DATA_DIRS="$HERE/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export GSETTINGS_SCHEMA_DIR="$HERE/usr/share/glib-2.0/schemas"
+export GIO_MODULE_DIR="$HERE/usr/lib/gio/modules"
+# Cairo avoids coupling bundled GTK to host GPU driver / Vulkan loader versions.
+export GSK_RENDERER="${GSK_RENDERER:-cairo}"
+exec "$HERE/usr/bin/unpack" "$@"

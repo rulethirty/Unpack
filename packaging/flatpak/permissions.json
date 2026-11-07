@@ -1,0 +1,8 @@
+[
+  "--share=ipc",
+  "--socket=wayland",
+  "--socket=fallback-x11",
+  "--device=dri",
+  "--filesystem=xdg-download",
+  "--env=UNPACK_PACKAGE=flatpak"
+]

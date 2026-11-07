@@ -1,0 +1,18 @@
+name: Validate
+on: [push, pull_request]
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev libpng-dev libarchive-dev desktop-file-utils appstream xvfb
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --locked
+      - run: cargo build -p unpack-desktop --locked
+      - run: dbus-run-session -- xvfb-run -a sh scripts/smoke.sh
+      - run: desktop-file-validate data/io.github.unpack.Unpack.desktop
+      - run: appstreamcli validate --no-net --override=url-homepage-missing=info data/io.github.unpack.Unpack.metainfo.xml

@@ -1,0 +1,17 @@
+[package]
+name = "unpack-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "unpack"
+path = "src/main.rs"
+
+[dependencies]
+unpack-core = { path = "../core" }
+gtk = { package = "gtk4", version = "0.10", features = ["v4_10"] }
+adw = { package = "libadwaita", version = "0.8", features = ["v1_5"] }
+async-channel = "2"
+serde_json.workspace = true

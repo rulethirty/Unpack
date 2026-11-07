@@ -1,0 +1,60 @@
+# Build directories
+**/build/
+**/build-*/
+**/target/
+**/dist/
+**/out/
+**/release/
+**/debug/
+
+# Anything build-related
+**/*build*
+**/*Build*
+**/*BUILD*
+
+# Caches
+**/.cache/
+**/.tmp/
+**/.temp/
+**/node_modules/
+**/.gradle/
+**/.next/
+**/.svelte-kit/
+
+# Temporary files
+**/*.log
+**/*.tmp
+**/*.temp
+**/*.bak
+**/*.old
+**/*.swp
+**/*.swo
+**/*.orig
+**/*.pid
+**/*.exit
+
+# Compiled artifacts
+**/*.o
+**/*.obj
+**/*.a
+**/*.so
+**/*.dylib
+**/*.dll
+**/*.exe
+**/*.bin
+**/*.class
+**/*.rlib
+**/*.rmeta
+**/*.profraw
+**/*.profdata
+**/*.gcda
+**/*.gcno
+**/*.gcov
+**/*.pdb
+**/*.dSYM/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

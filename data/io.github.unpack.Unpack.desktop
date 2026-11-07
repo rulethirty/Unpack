@@ -1,0 +1,22 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Unpack
+GenericName=Archive and Portable Application Manager
+Comment=Explore archives and install portable applications
+Exec=unpack %F
+Icon=io.github.unpack.Unpack
+Terminal=false
+Categories=Utility;Archiving;Compression;GTK;
+Keywords=archive;extract;install;portable;tar;zip;
+StartupNotify=true
+MimeType=application/zip;application/x-tar;application/gzip;application/x-compressed-tar;application/x-xz-compressed-tar;application/x-bzip-compressed-tar;application/zstd;application/x-zstd-compressed-tar;application/x-7z-compressed;
+Actions=Browse;Install;
+
+[Desktop Action Browse]
+Name=Browse Archive
+Exec=unpack --browse %F
+
+[Desktop Action Install]
+Name=Install Application
+Exec=unpack --install %F

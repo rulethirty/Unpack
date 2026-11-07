@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.unpack.Unpack</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Unpack</name>
+  <summary>Explore archives and manage portable applications</summary>
+  <description>
+    <p>Unpack brings archive browsing and transparent portable application installation together in a native Linux desktop application.</p>
+    <p>Inspect downloaded archives without executing their contents, review installation plans, create application-menu launchers, and manage installed applications without administrator access.</p>
+  </description>
+  <launchable type="desktop-id">io.github.unpack.Unpack.desktop</launchable>
+  <provides><binary>unpack</binary></provides>
+  <categories><category>Utility</category><category>Archiving</category></categories>
+  <content_rating type="oars-1.1"/>
+  <supports><control>pointing</control><control>keyboard</control></supports>
+  <requires><display_length compare="ge">600</display_length></requires>
+  <releases><release version="0.1.0" date="2026-11-07" type="development"><description><p>Initial development release with archive inspection and managed application installation.</p></description></release></releases>
+  <developer id="io.github.unpack"><name>Unpack contributors</name></developer>
+</component>

@@ -1,0 +1,35 @@
+{
+  "app-id": "io.github.unpack.Unpack",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "49",
+  "sdk": "org.gnome.Sdk",
+  "command": "unpack",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--device=dri",
+    "--filesystem=xdg-download",
+    "--env=UNPACK_PACKAGE=flatpak"
+  ],
+  "modules": [
+    {
+      "name": "unpack",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -Dm755 unpack /app/bin/unpack",
+        "install -Dm644 io.github.unpack.Unpack.desktop /app/share/applications/io.github.unpack.Unpack.desktop",
+        "install -Dm644 io.github.unpack.Unpack.metainfo.xml /app/share/metainfo/io.github.unpack.Unpack.metainfo.xml",
+        "install -Dm644 io.github.unpack.Unpack.svg /app/share/icons/hicolor/scalable/apps/io.github.unpack.Unpack.svg",
+        "install -Dm644 LICENSE /app/share/licenses/unpack/LICENSE"
+      ],
+      "sources": [
+        { "type": "file", "path": "../../target/release/unpack" },
+        { "type": "file", "path": "../../data/io.github.unpack.Unpack.desktop" },
+        { "type": "file", "path": "io.github.unpack.Unpack.metainfo.xml" },
+        { "type": "file", "path": "../../data/icons/io.github.unpack.Unpack.svg" },
+        { "type": "file", "path": "../../LICENSE" }
+      ]
+    }
+  ]
+}

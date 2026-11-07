@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.unpack.Unpack</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Unpack</name>
+  <summary>Explore and extract archives in a native interface</summary>
+  <description>
+    <p>Browse, inspect, create and extract archives with a native GTK interface and structural validation of downloaded files.</p>
+    <p>This sandboxed Flatpak edition does not install or launch portable applications on the host and cannot register their desktop launchers. Use the native or AppImage edition for portable application installation. Downloads is accessible; other files and extraction folders must be selected through the system file chooser.</p>
+  </description>
+  <launchable type="desktop-id">io.github.unpack.Unpack.desktop</launchable>
+  <provides><binary>unpack</binary></provides>
+  <categories><category>Utility</category><category>Archiving</category></categories>
+  <content_rating type="oars-1.1"/>
+  <supports><control>pointing</control><control>keyboard</control></supports>
+  <requires><display_length compare="ge">600</display_length></requires>
+  <releases><release version="0.1.0" date="2026-11-07" type="development"><description><p>Initial sandboxed archive-manager development package.</p></description></release></releases>
+  <developer id="io.github.unpack"><name>Unpack contributors</name></developer>
+</component>
