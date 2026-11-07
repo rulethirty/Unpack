@@ -1,93 +1,133 @@
-# Unpack
+<p align="center">
+  <img src="data/icons/io.github.unpack.Unpack.svg" width="112" height="112" alt="Unpack application icon">
+</p>
 
-**Archives, made approachable.** A native GTK4/libadwaita archive browser and user-level portable application manager, written in Rust.
+<h1 align="center">Unpack</h1>
 
-> Development release, not yet production-certified. The implemented workflow is real; the remaining product scope and validation gaps are listed below. Structural inspection does not establish that downloaded software is trustworthy.
+<p align="center">
+  <strong>Archives, made approachable.</strong><br>
+  Explore downloads. Install portable apps. Keep everything together.
+</p>
 
-## What works
+<p align="center">
+  <a href="#download--install">Download & Install</a> ·
+  <a href="#features">Features</a> ·
+  <a href="BUILDING.md">Build from Source</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
 
-- Read TAR, gzip/XZ/bzip2/Zstandard-compressed TAR, ZIP and 7z through libarchive, with content-based decoding rather than trusting extensions.
-- Browse archive directories, search, show hidden files, inspect sizes and executable indicators, and preview bounded UTF-8 text/Markdown source.
-- Extract into a **new** directory with progress, cancellation, path validation, no-follow writes, extraction limits, and cleanup on failure.
-- Create archives in those formats using the core API; choose multiple regular files in the GUI.
-- Classify portable applications, AppDirs, binary distributions, source trees, installer distributions and AppImage-related archives, with evidence and uncertainty.
-- Statically inspect ELF architecture, program type, interpreter, dependency names and visible GLIBC version references. Never run `ldd` on downloaded code.
-- Select an entry point, name, ID and user-level destination; review the actual installation plan; explicitly confirm installation.
-- Install a complete archive payload, generate a sanitized desktop launcher, import raster icons, and record every managed file.
-- Detect application names from archive `.desktop` metadata, suggest matching archive icons, preview the selected PNG, and override either before installation. No internet lookup is used.
-- Refresh an installed application's name and icon from an archive without replacing its payload; integration changes are journaled, recorded and undoable.
-- List installed applications, launch explicitly, inspect manifests and dependencies, update from another archive, remove unchanged managed installations, and undo the most recent retained operation.
-- Retain recoverable backups for updates/removals; recover journaled interrupted filesystem moves at startup.
-- Persist preferences, window size, manifests and history in XDG directories.
-- Use native file dialogs, keyboard shortcuts, optional onboarding, system/light/dark appearance, responsive navigation and background workers.
-- Open multiple archives as an inspection queue; every installation still needs its own confirmation.
-- Discover other MIME handlers without assuming File Roller or GNOME services are installed. Never change MIME defaults silently.
+---
 
-## Build and run
+Unpack is a native Linux archive manager and portable application installer built with **Rust, GTK4, and libadwaita**. Turn a downloaded archive into an application you can find, launch, update, and remove—without manually moving files or writing desktop shortcuts.
 
-See [BUILDING.md](BUILDING.md) for native packages and the isolated GNOME SDK environment.
+## Download & Install
+
+**Use the Releases button on this repository’s GitHub page to download the latest published build.** Open the release, expand **Assets**, and choose the package for your system. You do not need to build Unpack yourself.
+
+| Package | Best for | Requirements |
+| --- | --- | --- |
+| **AppImage — recommended** | Archive tools **and portable application installation** | Linux x86_64, glibc **2.39+** |
+| **Flatpak** | Sandboxed archive browsing, inspection, creation, and extraction | Linux x86_64, Flatpak; GNOME 49 runtime |
+
+> **Choose AppImage to install portable apps.** The Flatpak edition deliberately cannot install applications or register launchers on the host.
+
+### AppImage
+
+Download `Unpack-0.1.0-x86_64.AppImage` from the release assets. In your file manager, open **Properties → Permissions**, allow execution, then double-click it.
+
+If FUSE is unavailable, run the downloaded AppImage with `APPIMAGE_EXTRACT_AND_RUN=1`. See [packaging instructions](PACKAGING.md) for commands and compatibility details.
+
+### Flatpak
+
+Download `Unpack-0.1.0-x86_64.flatpak` from the release assets and open it with your software installer. Alternatively, from the folder containing the download:
+
+```sh
+flatpak install --user ./Unpack-0.1.0-x86_64.flatpak
+flatpak run io.github.unpack.Unpack
+```
+
+The GNOME runtime is a separate download. This is a local bundle, not a Flathub listing or an automatic update channel.
+
+**Release status:** current packages are unsigned development builds, not production-certified releases. Download `SHA256SUMS` alongside the packages to verify integrity; checksums do not establish publisher authenticity.
+
+## Features
+
+### Explore before you install
+
+- Browse archive folders, search files, and preview text and installation instructions.
+- Inspect executable candidates, application structure, and compatibility findings without running downloaded code.
+- Create and extract **TAR, TAR.GZ, TAR.XZ, TAR.BZ2, TAR.ZST, ZIP, and 7z** archives.
+
+### A simpler installation experience
+
+- A compact application card and a large **Install…** button at the top.
+- Names and matching icons detected **from the archive**, never fetched from the internet.
+- Expandable controls for name and icon, installation location, launcher settings, updates, and technical details.
+- A clear confirmation showing what will change before installation begins.
+- User-level installation by default—no administrator privileges required.
+
+### Your applications, in one place
+
+- Launch apps, open their folders, inspect manifests, and check dependencies.
+- Update from a replacement archive with recoverable backups.
+- Refresh an installed app’s name and icon without replacing its files.
+- Remove unchanged managed installations and undo the most recent retained operation.
+- Review installation history while preserving configuration and documents outside the managed installation.
+
+### At home on Linux
+
+Native file dialogs, keyboard shortcuts, system/light/dark themes, responsive navigation, cancellable background operations, and no automatic changes to your default archive handler.
+
+## From download to application
+
+1. **Open an archive** and choose **Inspect Application**.
+2. **Review the app card.** Open **Name & Icon** or **Launch Settings** if you want to change the detected details.
+3. **Click Install…** at the top, review the summary, and confirm.
+4. **Find your app** in the application menu and Unpack’s **Installed Applications** section.
+
+Prefer to browse? Switch to **Files** to inspect or extract the archive. Advanced details stay available without getting in your way. **Next Archive** appears only when another archive is actually queued.
+
+## Safety and transparency
+
+Downloaded archives are untrusted. Unpack validates paths and links, enforces extraction limits, stages installations, records managed files, and refuses to overwrite unrelated or modified files. Installation scripts and commands in documentation are **never executed automatically**.
+
+**Inspection is not malware detection.** Explicitly launched applications run with your account’s permissions; the native/AppImage installer does not sandbox them. Install software only from sources you trust.
+
+Read the [security model and limitations](SECURITY.md) and [validation record](VALIDATION.md).
+
+<details>
+<summary><strong>Current limitations</strong></summary>
+
+- No elevated/system-wide installation, AppImage installation workflow, or automatic execution of installers.
+- No password-protected archive workflow, recursive nested extraction, or in-place archive add/remove/rename interface.
+- Installation retains the complete archive payload; selected-subtree and keep-in-place portable registration are not implemented.
+- PNG icons are previewed directly; XPM previews depend on runtime decoder support. SVG files are inspectable but are not imported as launcher icons.
+- Markdown is previewed as text. Archive listings display up to 2,000 rows; search narrows larger archives.
+- Compatibility checks are best-effort, not a guarantee that an app will run.
+- No automatic update discovery, signature-verification UI, profile editor, advanced launcher editor, or one-click MIME-default registration.
+- Backups consume disk space; backup lifecycle management remains unfinished. Undo requires retained state.
+- Independent security review, exhaustive crash testing, accessibility certification, and broad desktop/compositor testing remain outstanding.
+
+</details>
+
+## Development
+
+For dependencies and setup, see [BUILDING.md](BUILDING.md).
 
 ```sh
 cargo build --release --locked
-cargo run -p unpack-desktop -- /path/to/download.tar.gz
+cargo test --workspace --locked
+cargo clippy --workspace --all-targets --locked -- -D warnings
 ```
 
-From this workspace's VS Code Flatpak terminal:
-
-```sh
-sh /home/user/Documents/Unpack/scripts/sdk.sh cargo run -p unpack-desktop
-```
-
-## Typical installation
-
-1. Open a downloaded application archive.
-2. Choose **Inspect Application**. The **Install** tab shows a compact app card and a large **Install…** button at the top. **Browse Archive** opens the **Files** tab instead.
-3. Open **Name & Icon** to review the archive-detected identity or choose another icon. **Launch Settings** opens automatically when an entry point needs your attention.
-4. Keep the default location, or expand **Install Location** to change it. **Advanced & Updates** contains the application ID and explicit update option. All evidence, compatibility findings, warnings and checksums remain in **Archive Details & Compatibility**.
-5. Click the top **Install…** button and confirm the summary. **Show All Changes & Warnings** reveals the complete generated plan.
-6. Find the application in your desktop menu or Unpack's **Installed Applications** section.
-
-The full archive structure is retained. For `example/bin/example`, the entry point becomes `~/.local/opt/example-id/example/bin/example`. Unpack does not guess which bundled libraries can be discarded.
-
-**Next Archive** appears only when another archive is actually queued; it is absent for a single archive. It does not install anything. Name/icon detection reads only archive files; downloaded Exec fields and icon paths never become launch commands or host file reads.
-
-PNG icons have a built-in system-libpng preview path. XPM icons can be installed, but their preview depends on the runtime's decoder (some newer GNOME runtimes omit it). If a preview cannot load, Unpack explains the failure and uses a neutral icon. SVG files remain inspectable but are not imported.
-
-For an installed application, open **Installed Applications → Details → Manage Application → Name & Icon from Archive…**. Select an archive, review the detected name/icon, and apply. The installed list and generated desktop launcher use the updated identity; application files and user data remain unchanged.
-
-### Updating
-
-Open the replacement archive, use the installed application's exact ID and parent directory, select **Update existing installation**, and review the new plan. Updates stop if managed files changed or user-added files are present. Backups are hidden `.unpack-backup-*` siblings; they consume disk space and are not silently discarded.
-
-### Removing and undoing
-
-Use **Installed Applications → Details → Manage Application → Uninstall**. Files outside the manifest scope are preserved. Changed installations are not partially destroyed. A recoverable backup remains; **Undo Last Operation** can restore the most recent retained operation. History includes removed applications and offers operation details.
-
-## Security model
-
-Read [SECURITY.md](SECURITY.md) before processing untrusted software. Inspection and installation never execute archive contents. Launching an installed application is an explicit user action and runs it with your account's normal permissions, **not in a sandbox**.
-
-## Current limitations and remaining scope
-
-These are not hidden behind nonfunctional buttons:
-
-- No system-wide/elevated installation. `/opt`, `/usr/local` and installation scripts are explained but not supported as managed destinations.
-- AppImage distributions are detected but not installed; mounting/extracting AppImages and FUSE-specific workflows require a separate implementation.
-- No password-protected archive workflow or automatic nested archive extraction.
-- No in-place archive add/remove/rename interface yet; creation and safe extraction are available. Symbolic links are not accepted by archive creation.
-- No selected-subtree installation: installation deliberately retains the full application payload.
-- README Markdown is previewed as text, without active HTML or external resources.
-- The archive browser bounds displayed rows to 2,000; search narrows large inventories. A virtualized tree model is needed for larger interactive listings.
-- Install and Files use explicit tabs at all window sizes, with collapsible details and a fixed top installation action. Further usability and compositor testing remains necessary.
-- No keep-in-place portable launcher registration, profile editor, advanced launcher editor, arbitrary environment overrides, GPG verification UI, checksum-comparison UI, or one-click MIME-default registration yet.
-- No automatic update discovery or package-manager operations.
-- ELF inspection is best-effort. Archive previews are bounded; dynamic metadata outside that range can be incomplete. Dependency checks do not reproduce the dynamic linker's entire search algorithm.
-- Undo is local recovery, not a durable backup system. Backup cleanup and an all-operations recovery browser remain to be implemented.
-- GTK accessibility semantics are used, but screen-reader, multiple desktop environment, real tiling compositor, and full interactive workflow certification remain outstanding.
-- AppImage and Flatpak development packages are available; see [PACKAGING.md](PACKAGING.md). The AppImage supports native installation and requires glibc 2.39+. The Flatpak is restricted to archive functions and does not install applications or launchers onto the host.
-
-See [ARCHITECTURE.md](ARCHITECTURE.md), [CONTRIBUTING.md](CONTRIBUTING.md) and the tests for design details.
+| Documentation | Contents |
+| --- | --- |
+| [Building](BUILDING.md) | Development setup and native installation |
+| [Packaging](PACKAGING.md) | AppImage/Flatpak usage, rebuilding, and restrictions |
+| [Architecture](ARCHITECTURE.md) | Core modules, transactions, and interface design |
+| [Security](SECURITY.md) | Threat model, protections, and known limitations |
+| [Contributing](CONTRIBUTING.md) | Development workflow and review checklist |
 
 ## License
 
-GPL-3.0-or-later. See [LICENSE](LICENSE). AppStream metadata is CC0-1.0.
+**GPL-3.0-or-later.** AppStream metadata is CC0-1.0.
